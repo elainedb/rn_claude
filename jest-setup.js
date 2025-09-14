@@ -9,48 +9,11 @@ global.console.error = jest.fn();
 jest.mock('react-native', () => {
   const React = require('react');
 
-  // Create mock components that preserve testID and other props
-  const View = React.forwardRef(({ testID, style, children, ...props }, ref) => {
-    // Create mock component with preserved props for testing
-    const element = React.createElement('div', {
-      ref,
-      'data-testid': testID,
-      testID,
-      style: Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style,
-      ...props
-    }, children);
-
-    // Preserve original style for test assertions
-    element.props = { ...element.props, style };
-    return element;
-  });
-
-  const Text = React.forwardRef(({ testID, style, children, ...props }, ref) => {
-    const element = React.createElement('div', {
-      ref,
-      'data-testid': testID,
-      testID,
-      style: Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style,
-      ...props
-    }, children);
-
-    element.props = { ...element.props, style };
-    return element;
-  });
-
-  const TouchableOpacity = React.forwardRef(({ testID, style, children, onPress, ...props }, ref) => {
-    const element = React.createElement('div', {
-      ref,
-      'data-testid': testID,
-      testID,
-      style: Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style,
-      onClick: onPress,
-      ...props
-    }, children);
-
-    element.props = { ...element.props, style, onPress };
-    return element;
-  });
+  // Create simple mock components for testing
+  const View = React.forwardRef((props, ref) => React.createElement('div', { ...props, ref }));
+  const Text = React.forwardRef((props, ref) => React.createElement('span', { ...props, ref }));
+  const TouchableOpacity = React.forwardRef(({ onPress, ...props }, ref) =>
+    React.createElement('div', { ...props, onClick: onPress, ref }));
 
   return {
     Platform: {
