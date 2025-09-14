@@ -1,12 +1,16 @@
 module.exports = {
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react'
+      }
+    }],
     '^.+\\.(js|jsx)$': 'babel-jest'
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@react-native|react-native|expo|@expo|@react-navigation)/)'
+    'node_modules/(?!(@react-native|react-native|expo|@expo|@react-navigation|@testing-library)/)'
   ],
   testMatch: [
     '**/__tests__/**/*.(ts|tsx|js)',
@@ -29,9 +33,5 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
-  }
+  setupFilesAfterEnv: ['<rootDir>/jest-setup.js']
 };
