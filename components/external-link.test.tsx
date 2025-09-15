@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { ExternalLink } from './external-link';
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 
@@ -19,7 +19,6 @@ jest.mock('expo-router', () => ({
 
     return (
       <button
-        testID="external-link"
         onClick={handlePress}
         data-href={href}
         {...props}
@@ -31,6 +30,7 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockOpenBrowserAsync = openBrowserAsync as jest.MockedFunction<typeof openBrowserAsync>;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { Link: MockLink } = require('expo-router');
 
 describe('ExternalLink', () => {

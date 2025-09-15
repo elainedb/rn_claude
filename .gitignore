@@ -44,3 +44,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+# configuration files with sensitive data
+config.json
+google-services.json
