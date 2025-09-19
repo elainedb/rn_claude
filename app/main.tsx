@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,44 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  FlatList,
+  SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { router } from 'expo-router';
+import { VideoData, fetchAllVideos } from '../services/youtubeApi';
+import { VideoItem } from '../components/VideoItem';
 
 export default function MainScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [videos, setVideos] = useState<VideoData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  const loadVideos = async () => {
+    try {
+      console.log('[MAIN] Loading YouTube videos...');
+      const fetchedVideos = await fetchAllVideos();
+      setVideos(fetchedVideos);
+      console.log(`[MAIN] Loaded ${fetchedVideos.length} videos`);
+    } catch (error) {
+      console.error('[MAIN] Error loading videos:', error);
+      Alert.alert('Error', 'Failed to load videos. Please check your internet connection and YouTube API key.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadVideos();
+    setRefreshing(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -53,71 +85,121 @@ export default function MainScreen() {
     );
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome!</Text>
-      <Text style={styles.subtitle}>You are successfully logged in.</Text>
+  const renderVideoItem = ({ item }: { item: VideoData }) => (
+    <VideoItem video={item} />
+  );
 
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <Text style={styles.title}>YouTube Videos</Text>
       <Pressable
         style={[styles.logoutButton, isLoggingOut && styles.buttonDisabled]}
         onPress={confirmLogout}
         disabled={isLoggingOut}
       >
         {isLoggingOut ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color="#fff" size="small" />
         ) : (
           <Text style={styles.logoutButtonText}>Logout</Text>
         )}
       </Pressable>
+    </View>
+  );
 
-      <Text style={styles.helpText}>
-        Use the logout button to sign in with a different account.
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>
+        {loading ? 'Loading videos...' : 'No videos found. Pull to refresh or check your API key.'}
       </Text>
     </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {loading && videos.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4285F4" />
+          <Text style={styles.loadingText}>Loading videos...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={videos}
+          renderItem={renderVideoItem}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderHeader}
+          ListEmptyComponent={renderEmptyComponent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#4285F4']}
+              tintColor="#4285F4"
+            />
+          }
+          contentContainerStyle={videos.length === 0 ? styles.emptyListContainer : undefined}
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,
     backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
     color: '#333',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 40,
-    color: '#666',
-    textAlign: 'center',
   },
   logoutButton: {
     backgroundColor: '#d32f2f',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    minWidth: 150,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
     alignItems: 'center',
-    marginBottom: 20,
   },
   buttonDisabled: {
     backgroundColor: '#cccccc',
   },
   logoutButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
-  helpText: {
-    color: '#888',
-    fontSize: 14,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
     textAlign: 'center',
-    paddingHorizontal: 20,
+  },
+  emptyListContainer: {
+    flexGrow: 1,
   },
 });

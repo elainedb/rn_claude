@@ -47,4 +47,5 @@ app-example
 
 # configuration files with sensitive data
 config.json
+config.js
 google-services.json
