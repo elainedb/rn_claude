@@ -111,9 +111,28 @@ export const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
         <Text style={styles.channelName} numberOfLines={1}>
           {video.channelName}
         </Text>
-        <Text style={styles.publishDate}>
-          {formatDate(video.publishedAt)}
-        </Text>
+        <View style={styles.metadataContainer}>
+          <Text style={styles.publishDate}>
+            Published: {formatDate(video.publishedAt)}
+          </Text>
+          {video.recordingDate && (
+            <Text style={styles.recordingDate}>
+              Recorded: {formatDate(video.recordingDate)}
+            </Text>
+          )}
+          {video.location && (
+            <Text style={styles.location} numberOfLines={1}>
+              📍 {video.location.city ? `${video.location.city}, ` : ''}
+              {video.location.country || 'Location available'}
+            </Text>
+          )}
+          {video.tags.length > 0 && (
+            <Text style={styles.tags} numberOfLines={2}>
+              Tags: {video.tags.slice(0, 5).join(', ')}
+              {video.tags.length > 5 ? '...' : ''}
+            </Text>
+          )}
+        </View>
       </View>
     </Pressable>
   );
@@ -144,7 +163,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 16,
@@ -157,10 +176,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 8,
+  },
+  metadataContainer: {
+    gap: 2,
   },
   publishDate: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 11,
+    color: '#666',
+    fontWeight: '500',
+  },
+  recordingDate: {
+    fontSize: 11,
+    color: '#666',
+  },
+  location: {
+    fontSize: 11,
+    color: '#4A90E2',
+  },
+  tags: {
+    fontSize: 10,
+    color: '#888',
+    fontStyle: 'italic',
+    marginTop: 2,
   },
 });
