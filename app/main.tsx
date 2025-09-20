@@ -221,6 +221,13 @@ export default function MainScreen() {
             <Text style={styles.refreshButtonText}>🔄 Refresh</Text>
           )}
         </Pressable>
+
+        <Pressable
+          style={[styles.controlButton, styles.mapButton]}
+          onPress={() => router.push('/map')}
+        >
+          <Text style={styles.mapButtonText}>🗺️ View Map</Text>
+        </Pressable>
       </View>
 
       <View style={styles.statsContainer}>
@@ -353,6 +360,7 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     padding: 12,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -361,6 +369,7 @@ const styles = StyleSheet.create({
   },
   controlButton: {
     flex: 1,
+    minWidth: '30%',
     padding: 10,
     backgroundColor: '#f0f0f0',
     borderRadius: 6,
@@ -375,6 +384,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#4285F4',
   },
   refreshButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  mapButton: {
+    backgroundColor: '#34A853',
+  },
+  mapButtonText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '500',
